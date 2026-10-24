@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打字爆破 · 扫码就玩</title>
+<style>
+  /* ===== 海报页样式（独立于游戏，参考米色海报风） ===== */
+  body.poster-page {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #ede7d8;
+    background-image: radial-gradient(rgba(30, 70, 57, 0.06) 1.2px, transparent 1.2px);
+    background-size: 26px 26px;
+    overflow-x: hidden;
+  }
+  .poster {
+    display: flex;
+    gap: 56px;
+    align-items: center;
+    padding: 48px 40px;
+    max-width: 1080px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .p-left { flex: 0 0 340px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .p-right { flex: 1; min-width: 0; }
+
+  /* 手机样机 */
+  .phone {
+    width: 300px;
+    height: 560px;
+    background: #1e4639;
+    border-radius: 36px;
+    padding: 10px;
+    box-shadow: 0 18px 40px rgba(30, 70, 57, 0.35);
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #f4f5f7;
+    border-radius: 28px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120, 130, 150, 0.07) 0 1px, transparent 1px 34px),
+      repeating-linear-gradient(90deg, rgba(120, 130, 150, 0.07) 0 1px, transparent 1px 60px);
+  }
+  .ph-hud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 12px;
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 11px;
+    color: #868e96;
+  }
+  .ph-hud b { color: #343a40; font-size: 12px; }
+  .ph-hp { display: flex; gap: 1.5px; margin-left: auto; width: 88px; }
+  .ph-hp i { flex: 1; height: 8px; border-radius: 1.5px; background: #e9ecef; }
+  .ph-hp i.on { background: #fcc419; }
+  .ph-body { position: relative; flex: 1; }
+
+  .ph-bubble {
+    position: absolute;
+    background: #fff;
+    border: 1.5px solid #dee2e6;
+    border-radius: 9px;
+    padding: 6px 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  .ph-bubble .zh { font-size: 14px; font-weight: 600; color: #343a40; display: block; }
+  .ph-bubble .py { font-size: 10px; font-family: Consolas, monospace; letter-spacing: 0.4px; }
+  .ph-bubble .py .done { color: #2f9e44; }
+  .ph-bubble .py .todo { color: #868e96; }
+  .ph-bubble.locked { border-color: #339af0; border-width: 2px; }
+  .ph-bubble.easter { border-color: #f08c00; border-width: 2px; background: #fff9db; }
+  .ph-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #e8590c;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 1px 5px;
+  }
+  .ph-boom { position: absolute; font-weight: 800; font-family: Consolas, monospace; }
+  .ph-score { position: absolute; font-weight: 700; color: #343a40; font-size: 13px; }
+  .ph-mile { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-weight: 700; color: #2f9e44; font-size: 13px; white-space: nowrap; }
+  .ph-foot {
+    text-align: center;
+    font-size: 10px;
+    color: #868e96;
+    padding: 6px 0 8px;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+  }
+
+  .p-left-cap { font-size: 12px; color: #6b7c74; margin: 0; }
+
+  /* 右栏 */
+  .p-title {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 6px;
+    color: #1e4639;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+  }
+  .p-title .stamp {
+    position: absolute;
+    top: -10px;
+    right: -40px;
+    width: 34px;
+    height: 34px;
+    border: 2.5px solid #c92a2a;
+    color: #c92a2a;
+    border-radius: 50%;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(14deg);
+    opacity: 0.85;
+  }
+  .p-slogan {
+    font-size: 19px;
+    color: #1e4639;
+    line-height: 1.65;
+    margin: 14px 0 0;
+    font-weight: 600;
+  }
+  .p-slogan em { font-style: normal; color: #b8862d; }
+  .p-divider { width: 100%; height: 1px; background: rgba(30, 70, 57, 0.18); margin: 20px 0; }
+  .p-manual { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .p-manual li { display: flex; align-items: flex-start; gap: 12px; font-size: 14.5px; color: #3f5449; line-height: 1.55; }
+  .p-manual .tag {
+    flex: 0 0 auto;
+    background: #1e4639;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-top: 1px;
+  }
+  .p-manual .tag.gold { background: #b8862d; }
+  .p-manual b { color: #1e4639; }
+
+  /* 二维码卡片 */
+  .qr-card {
+    margin-top: 24px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    box-shadow: 0 10px 26px rgba(30, 70, 57, 0.14);
+    max-width: 520px;
+  }
+  #qr-canvas { display: block; }
+  .qr-text .qr-title {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1e4639;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+  .qr-text p { margin: 4px 0; font-size: 13px; color: #6b7c74; }
+  .qr-text p b { color: #b8862d; }
+  .p-url { margin: 12px 0 0; font-size: 13px; color: #6b7c74; font-family: Consolas, monospace; word-break: break-all; }
+  .p-tools { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+  .p-tools input {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid #cdbfe0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: Consolas, monospace;
+    background: #fff;
+    min-width: 0;
+  }
+  .p-tools span { font-size: 12px; color: #6b7c74; white-space: nowrap; }
+  .p-footnote { margin: 16px 0 0; font-size: 12px; color: #8a9a90; line-height: 1.6; }
+
+  @media (max-width: 900px) {
+    .poster { flex-direction: column; padding: 28px 18px; }
+    .p-left { flex: none; }
+  }
+  @media print {
+    body.poster-page { background: #fff; }
+    .p-tools, .p-left-cap { display: none; }
+    .poster { padding: 10px; }
+  }
+</style>
+</head>
+<body class="poster-page">
+  <div class="poster">
+
+    <!-- 左：手机样机里的游戏画面（纯 CSS 示意） -->
+    <div class="p-left">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="ph-hud">
+            <span>得分 <b>460</b></span>
+            <span>连击 <b>10 ×1.5</b></span>
+            <div class="ph-hp">
+              <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+          <div class="ph-body">
+            <div class="ph-mile">心态回稳 +1</div>
+
+            <div class="ph-bubble locked" style="left: 30px; top: 74px;">
+              <span class="zh">对齐颗粒度</span>
+              <span class="py"><span class="done">dui qi</span> <span class="todo">ke li du</span></span>
+            </div>
+
+            <div class="ph-bubble" style="right: 22px; top: 168px;">
+              <span class="zh">早八</span>
+              <span class="py"><span class="todo">zao ba</span></span>
+            </div>
+
+            <div class="ph-bubble easter" style="left: 58px; top: 262px;">
+              <span class="zh">下班</span>
+              <span class="py"><span class="todo">xia ban</span></span>
+              <span class="ph-badge">4/10</span>
+            </div>
+
+            <span class="ph-boom" style="left: 168px; top: 120px; color: #fa5252; transform: rotate(-14deg); font-size: 15px;">n!</span>
+            <span class="ph-boom" style="left: 196px; top: 96px; color: #ff922b; transform: rotate(18deg); font-size: 13px;">g</span>
+            <span class="ph-boom" style="left: 148px; top: 92px; color: #fcc419; transform: rotate(-24deg); font-size: 12px;">a</span>
+            <span class="ph-boom" style="left: 186px; top: 148px; color: #fa5252; transform: rotate(30deg); font-size: 12px;">o</span>
+            <span class="ph-score" style="left: 132px; top: 62px;">+135</span>
+          </div>
+          <div class="ph-foot">键盘敲词 · 或连点词条 10 次直接点爆</div>
+        </div>
+      </div>
+      <p class="p-left-cap">↑ 游戏画面示意（扫码看真的）</p>
+    </div>
+
+    <!-- 右：标题 / 口号 / 使用手册 / 二维码 -->
+    <div class="p-right">
+      <h1 class="p-title">打字爆破<span class="stamp">急</span></h1>
+      <p class="p-slogan">上班的班味，上学的 DDL——<br>一个词一个词，<em>亲手敲碎它</em>。</p>
+
+      <div class="p-divider"></div>
+
+      <ul class="p-manual">
+        <li><span class="tag">敲 词</span><span>看到词<b>直接敲键盘</b>，首字母自动锁定，敲完整词<b>当场爆炸</b>得分</span></li>
+        <li><span class="tag">连 点</span><span>不想打字？<b>连点词条 10 次</b>也能爆——手机就玩这个</span></li>
+        <li><span class="tag">心 态</span><span>开局 1 格心态，<b>每爆一个词 +1</b>，越玩越稳；5 / 10 / 15 / 20 格有惊喜</span></li>
+        <li><span class="tag gold">模 式</span><span><b>打工人黑话</b> · <b>四六级单词</b>（打爆还会朗读）· <b>自定义词库</b>——把老板语录录进去</span></li>
+      </ul>
+
+      <div class="qr-card">
+        <canvas id="qr-canvas"></canvas>
+        <div class="qr-text">
+          <div class="qr-title">扫码就玩</div>
+          <p>手机、电脑都能玩，<b>无需安装</b></p>
+          <p>连同一 WiFi / 热点即可打开</p>
+          <p>断网可玩 · 建议加到主屏幕</p>
+        </div>
+      </div>
+      <p class="p-url" id="url-text"></p>
+      <div class="p-tools">
+        <span>改地址实时换码：</span>
+        <input id="url-input" placeholder="http://192.168.x.x:8123/">
+      </div>
+      <p class="p-footnote">把这一页打印出来贴在工位 / 宿舍，路过扫一下就能发泄两分钟。&nbsp;扫码打不开？让运行游戏的那台电脑放行防火墙端口 8123（Windows 首次运行时弹窗点“允许”即可）。</p>
+    </div>
+  </div>
+
+  <script src="js/qr.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      var PLACEHOLDER = '__LAN_URL__';
+      var input = document.getElementById('url-input');
+      var urlText = document.getElementById('url-text');
+
+      function resolveDefault() {
+        var injected = '@__LAN_URL__@';
+        if (injected.indexOf(PLACEHOLDER) === -1 && injected.indexOf('http') === 0) return injected;
+        /* 未注入：若正通过非 localhost 的 http(s) 访问（如 GitHub Pages），用当前站点地址（含子路径） */
+        if (location.protocol.indexOf('http') === 0 && !/^(localhost|127\.)/.test(location.hostname)) {
+          return location.origin + location.pathname.replace(/[^/]*$/, '');
+        }
+        return '';
+      }
+
+      function render(url) {
+        var canvas = document.getElementById('qr-canvas');
+        if (!url || url.indexOf('http') !== 0) {
+          canvas.width = 0; canvas.height = 0;
+          urlText.textContent = '请输入可访问的地址（例如 http://192.168.1.5:8123/）';
+          return;
+        }
+        try {
+          TB.QR.render(canvas, url, { scale: 7, display: 168, dark: '#1e4639' });
+          urlText.textContent = url;
+        } catch (e) {
+          urlText.textContent = '生成失败：' + e.message;
+        }
+      }
+
+      var initial = resolveDefault();
+      input.value = initial;
+      render(initial);
+      input.addEventListener('input', function () { render(input.value.trim()); });
+    })();
+  </script>
+</body>
+</html>

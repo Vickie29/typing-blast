@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>打字爆破 · Typing Blast</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ========== 开始菜单 ========== -->
+  <section id="screen-menu" class="screen active">
+    <div class="menu-inner">
+      <h1 class="title">打字爆破</h1>
+      <p class="subtitle">让血压升高的词从天而降，敲对拼音，当场爆炸</p>
+
+      <div class="modes">
+        <button class="mode-btn worker" id="btn-worker">
+          <span class="mode-name">打工人模式</span>
+          <span class="mode-desc">敲碎职场黑话</span>
+          <span class="best" id="best-worker">暂无纪录</span>
+        </button>
+        <button class="mode-btn cet" id="btn-cet">
+          <span class="mode-name">四六级模式</span>
+          <span class="mode-desc">看中文释义，敲英文单词</span>
+          <span class="best" id="best-cet">暂无纪录</span>
+        </button>
+        <button class="mode-btn custom" id="btn-custom">
+          <span class="mode-name">自定义词库</span>
+          <span class="mode-desc">录入你自己的词，至少 5 个</span>
+          <span class="best" id="best-custom">暂无纪录</span>
+        </button>
+      </div>
+
+      <div class="settings">
+        <div class="setting-row">
+          <span class="setting-label">音效</span>
+          <button id="btn-sound" class="toggle">开</button>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">四六级朗读</span>
+          <div class="seg" id="reading-seg">
+            <button data-val="en">英文</button>
+            <button data-val="zh">中文</button>
+            <button data-val="off">关闭</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <span class="setting-label">同屏词数 <small class="setting-note">1~8，太多就调小</small></span>
+          <div class="stepper">
+            <button id="btn-words-minus" class="step-btn" title="减少">−</button>
+            <span id="words-val" class="step-val">5</span>
+            <button id="btn-words-plus" class="step-btn" title="增加">+</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint">游戏内：Alt+M 静音 · Alt+T 切换朗读 · Esc 暂停 · 不想打字？连点词条 10 次直接点爆</p>
+      <p class="poster-link"><a href="poster.html" target="_blank">🖨 做张海报，拉同事同学入坑 →</a></p>
+    </div>
+  </section>
+
+  <!-- ========== 游戏画面 ========== -->
+  <section id="screen-game" class="screen">
+    <div id="hud">
+      <div class="hud-item">得分 <span id="hud-score" class="hud-num">0</span></div>
+      <div class="hud-item">时间 <span id="hud-time" class="hud-num">0s</span></div>
+      <div class="hud-item">连击 <span id="hud-combo" class="hud-num">0</span></div>
+      <div class="hud-item hp-item">
+        <span>心态</span>
+        <div id="hp-bar"></div>
+      </div>
+      <button id="btn-mute" class="icon-btn" title="静音（Alt+M）">🔊</button>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="game-canvas"></canvas>
+      <div id="toast" class="hidden"></div>
+      <div id="pause-overlay" class="overlay hidden">
+        <div class="overlay-card">
+          <h2>已暂停</h2>
+          <p class="overlay-sub">摸完这把鱼，回来继续爆</p>
+          <button id="btn-resume" class="btn primary">继续（Esc）</button>
+          <button id="btn-quit" class="btn ghost">回到菜单</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 自定义词库编辑器 ========== -->
+  <section id="screen-editor" class="screen">
+    <div class="editor-inner">
+      <h2>自定义词库</h2>
+
+      <div class="editor-add card">
+        <div class="add-row">
+          <input id="inp-word" placeholder="词（必填，≤12 字，如：对齐一下）">
+          <input id="inp-pinyin" placeholder="拼音（中文词必填，如 dui qi yi xia）">
+          <button id="btn-add-word" class="btn primary">添加</button>
+        </div>
+        <p id="add-msg" class="msg"></p>
+      </div>
+
+      <div class="card">
+        <ul id="word-list"></ul>
+        <p id="custom-count" class="msg"></p>
+      </div>
+
+      <div class="editor-io card">
+        <textarea id="io-box" placeholder="点「导出」把词库复制走；粘贴 JSON 后点「导入」可恢复"></textarea>
+        <div class="io-actions">
+          <button id="btn-export" class="btn ghost">导出</button>
+          <button id="btn-import" class="btn ghost">导入</button>
+        </div>
+        <p id="io-msg" class="msg"></p>
+      </div>
+
+      <div class="editor-actions">
+        <button id="btn-play-custom" class="btn primary">用这套词开局</button>
+        <button id="btn-editor-back" class="btn ghost">返回菜单</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 结算画面 ========== -->
+  <section id="screen-result" class="screen">
+    <div class="result-card">
+      <h2>心态爆炸</h2>
+      <div id="new-record" class="hidden">新纪录！</div>
+      <div class="result-grid">
+        <div class="result-item"><span>最终得分</span><b id="r-score">0</b></div>
+        <div class="result-item"><span>坚持时间</span><b id="r-time">0 秒</b></div>
+        <div class="result-item"><span>消灭词数</span><b id="r-killed">0</b></div>
+        <div class="result-item"><span>最高连击</span><b id="r-combo">0</b></div>
+      </div>
+      <p id="r-best" class="result-best">本模式最高分 0</p>
+      <p id="r-flavor" class="result-flavor"></p>
+      <div class="result-actions">
+        <button id="btn-retry" class="btn primary">再来一局（Enter）</button>
+        <button id="btn-menu" class="btn ghost">回到菜单</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="js/words.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

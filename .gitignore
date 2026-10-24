@@ -1,0 +1,26 @@
+# ---- 系统垃圾文件 ----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ---- 编辑器 / IDE 缓存 ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ---- 其他 ----
+node_modules/
+npm-debug.log*
+*.log
+.tmp/
+.tmp/**
