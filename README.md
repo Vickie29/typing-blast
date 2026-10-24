@@ -54,11 +54,17 @@ node serve.js
 
 ## 在线游玩（GitHub Pages）
 
-部署后在这里放你的在线地址，例如：
-
 **https://vickie29.github.io/typing-blast/**
 
-部署方法见下方「发布到 GitHub Pages」章节，两分钟搞定。
+### 发布到 GitHub Pages（两分钟）
+
+1. 把本仓库推送到 GitHub（需为 Public 仓库）
+2. 仓库页面 → **Settings** → 左侧 **Pages**
+3. **Build and deployment** → Source 选 `Deploy from a branch`；Branch 选 `main` + `/ (root)` → **Save**
+4. 等待 1~2 分钟，刷新页面出现 "Your site is live at ..." 即部署完成，
+   在线地址为 `https://<你的用户名>.github.io/typing-blast/`
+5. 手机浏览器同样可玩（触屏连点爆破）；在线打开 `/poster.html` 可获得宣传海报，
+   海报二维码会自动指向当前站点地址，任何人扫码即玩
 
 ## 技术栈
 
